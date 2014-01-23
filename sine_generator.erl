@@ -2,8 +2,8 @@
 
 -compile(export_all).
 
--define(BIT_DEPTH,   16). % 16Bit
--define(FREQUENCY,   220). % Hertz
+-define(BIT_DEPTH,   16).   % Bit
+-define(FREQUENCY,   300). % Hertz
 -define(DURATION,    10).  % in Seconds
 -define(SAMPLE_RATE, 44100).
 
@@ -11,7 +11,7 @@
 
 
 calculate_sample(CurrentSample) ->
-    BitDepthValue = round(math:pow(2, ?BIT_DEPTH)) - 1, %padding
+    BitDepthValue = round(math:pow(2, ?BIT_DEPTH)/2) - 10, %padding
     BitDepthValue * math:sin(
         2 * math:pi() * ?FREQUENCY * (CurrentSample/?SAMPLE_RATE)
     ).
@@ -21,7 +21,7 @@ generate_period_samples() ->
     SampleSeq = lists:reverse(lists:seq(0, ?SAMPLE_RATE-1)),
     SampleFun = fun(Sample, SampleList) ->
         SampleVal    = round(calculate_sample(Sample)),
-        SampleValBin = << SampleVal:?BIT_DEPTH/integer-little-signed >>,
+        SampleValBin = << SampleVal:?BIT_DEPTH/integer-signed-little >>,
 
         [SampleValBin | SampleList]
     end,
