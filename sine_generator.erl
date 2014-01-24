@@ -30,7 +30,21 @@ generate_period_samples() ->
         lists:foldl(SampleFun, [], SampleSeq)
     ).
 
-generate_wave_file(Data) ->
+
+generate_pcm_data() ->
+    SampleFun = fun(_, Samples) ->
+        [generate_period_samples() | Samples]
+    end,
+
+    Data = lists:reverse(
+        lists:foldl(SampleFun, [], lists:seq(1, ?DURATION))
+    ),
+
+    list_to_binary(Data).
+
+
+generate_wave_file() ->
+    Data            = generate_pcm_data(),
     ChunkId         = <<"RIFF">>,
     DataSize        = byte_size(Data),
     ChunkSize       = (36+DataSize),
@@ -45,6 +59,7 @@ generate_wave_file(Data) ->
     BlockAlign      = NumChannels * round(BitsPerSample/8),
     SubChunk2Id     = <<"data">>,
     SubChunk2Size   = DataSize,
+
 
     WaveBytes = <<
         ChunkId/binary,
@@ -66,6 +81,7 @@ generate_wave_file(Data) ->
     io:format("~p~n", [WaveBytes]),
 
     file:write_file("/tmp/sine.wav", WaveBytes).
+
 
 
 
